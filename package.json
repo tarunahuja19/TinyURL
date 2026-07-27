@@ -1,0 +1,16 @@
+{
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "fastify": "^5.10.0",
+    "pg": "^8.22.0",
+    "pg-pool": "^3.14.0"
+  },
+  "scripts": {
+    "dev": "node --watch src/server.js"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.1",
+    "typescript": "^7.0.2"
+  }
+}

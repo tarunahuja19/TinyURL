@@ -1,0 +1,22 @@
+# infra/docker-compose.yml
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: TinyURL
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: tinyURL01
+    ports:
+      - "5432:5432"          
+    volumes:
+      - pg_data:/var/lib/postgresql/data   
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tinyURL01"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  pg_data:
