@@ -8,5 +8,5 @@ export async function shortenController(req,res) {
         return res.status(400).send({error:'original url missing'});
     }
     const short_url_key=await createShortURL(OriginalURL);
-    res.status(201).send({short_url:`https://localhost:3000/${short_url_key}`});
+    res.status(201).send({short_url:`${req.protocol}://${req.headers.host}/${short_url_key}`});
 }
