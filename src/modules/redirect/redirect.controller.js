@@ -5,5 +5,5 @@ export async function redirectController(req,res) {
     if(!originalUrl){
         return res.status(404).send({error:'short url not found'});
     }
-    return res.redirect(302,originalUrl);          
+    return res.redirect(originalUrl, 302);          
 }
