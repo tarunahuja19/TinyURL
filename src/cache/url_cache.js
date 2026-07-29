@@ -13,7 +13,7 @@ export async function setCachedUrl(shortKey,originalUrl) {
     try {
         await redis.set(KEY_PREFIX+shortKey,originalUrl,'EX',env.CACHE_TTL_SECONDS);
     } catch (error) {
-        console.log((err));
+        console.log((error));
         
     }
 }
