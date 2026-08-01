@@ -1,32 +1,51 @@
-# infra/docker-compose.yml
 services:
-  postgres:
+
+  postgres-shard-0:
     image: postgres:16-alpine
-    container_name: TinyURL-Postgres
+    container_name: TinyURL-Postgres-Shard-0
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
+      POSTGRES_USER:     postgres
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: tinyURL01
+      POSTGRES_DB:       tinyURL_shard0
     ports:
-      - "5432:5432"          
+      - "5434:5432"
     volumes:
-      - pg_data:/var/lib/postgresql/data   
+      - pg_shard0_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d tinyURL01"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tinyURL_shard0"]
       interval: 5s
-      timeout: 3s
-      retries: 5
+      timeout:  3s
+      retries:  5
+
+  postgres-shard-1:
+    image: postgres:16-alpine
+    container_name: TinyURL-Postgres-Shard-1
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB:       tinyURL_shard1
+    ports:
+      - "5435:5432"
+    volumes:
+      - pg_shard1_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tinyURL_shard1"]
+      interval: 5s
+      timeout:  3s
+      retries:  5
 
   redis:
-      image: redis:7-alpine
-      container_name: TinyURL-Redis
-      restart: unless-stopped
-      ports:
-        - "6379:6379"
-      volumes:
-       - redis_data:/data
+    image: redis:7-alpine
+    container_name: TinyURL-Redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
 
 volumes:
-  pg_data:
+  pg_shard0_data:
+  pg_shard1_data:
   redis_data:
