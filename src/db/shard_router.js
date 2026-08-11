@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import { env }  from '../config/env.js';
+import { parseConnectionString } from './connection_helper.js';
 
 const FNV_OFFSET_BASIS = 2166136261;
 const FNV_PRIME        = 16777619;
@@ -32,7 +33,7 @@ const shardPools = Array.from({ length: NUM_SHARDS }, (_, i) => {
     );
   }
 
-  const pool = new Pool({ connectionString, ...POOL_CONFIG });
+  const pool = new Pool({ connectionString: parseConnectionString(connectionString), ...POOL_CONFIG });
 
   pool.on('error', (err) => {
     console.error(`[ShardRouter] Shard ${i} pool error:`, err.message);

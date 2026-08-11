@@ -3,13 +3,17 @@
   "dependencies": {
     "dotenv": "^17.4.2",
     "fastify": "^5.10.0",
+    "geoip-lite": "^1.4.10",
     "ioredis": "^5.11.1",
     "pg": "^8.22.0",
     "pg-pool": "^3.14.0"
   },
   "scripts": {
-    "dev":     "node --watch src/server.js",
-    "migrate": "node scripts/migrate_shards.js"
+    "dev":            "node --watch src/server.js",
+    "migrate":        "node scripts/migrate_shards.js",
+    "worker":         "node worker/analytics_worker.js",
+    "inspect-stream": "node scripts/check_redis_stream.js",
+    "inspect-db":     "node scripts/check_analytics_db.js"
   },
   "devDependencies": {
     "tsx": "^4.23.1",
