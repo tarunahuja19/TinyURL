@@ -45,6 +45,43 @@ services:
     volumes:
       - redis_data:/data
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: TinyURL-Prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: TinyURL-Grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+
+  k6:
+    image: grafana/k6:latest
+    container_name: TinyURL-k6
+    profiles: ["tools"]
+    volumes:
+      - ../tests/load:/scripts
+    environment:
+      - TARGET_URL=http://host.docker.internal:3099
+    command: run /scripts/k6_stress_test.js
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
 volumes:
   pg_shard0_data:
   pg_shard1_data:

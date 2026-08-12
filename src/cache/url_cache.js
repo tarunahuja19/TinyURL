@@ -1,11 +1,21 @@
 import { redis } from "./redis_client.js";
 import { env } from "../config/env.js";
-const KEY_PREFIX='url:';
+import { redisCacheHitsCounter, redisCacheMissesCounter } from "../observability/metrics.js";
+
+const KEY_PREFIX = 'url:';
+
 export async function getCachedUrl(shortKey) {
     try {
-        return await redis.get(KEY_PREFIX+shortKey);
+        const val = await redis.get(KEY_PREFIX + shortKey);
+        if (val) {
+            redisCacheHitsCounter.inc();
+        } else {
+            redisCacheMissesCounter.inc();
+        }
+        return val;
     } catch (err) {
-        console.log((err));
+        console.error('[UrlCache] Error fetching cached URL:', err.message);
+        redisCacheMissesCounter.inc();
         return null;
     }
 }

@@ -1,6 +1,7 @@
 import { Pool } from 'pg';
 import { env }  from '../config/env.js';
 import { parseConnectionString } from './connection_helper.js';
+import { dbPoolActiveGauge, dbPoolIdleGauge, dbPoolWaitingGauge } from '../observability/metrics.js';
 
 const FNV_OFFSET_BASIS = 2166136261;
 const FNV_PRIME        = 16777619;
@@ -43,6 +44,20 @@ const shardPools = Array.from({ length: NUM_SHARDS }, (_, i) => {
   return pool;
 });
 
+export function collectDbPoolMetrics() {
+  shardPools.forEach((pool, i) => {
+    const shardName = `shard_${i}`;
+    const total = pool.totalCount || 0;
+    const idle = pool.idleCount || 0;
+    const waiting = pool.waitingCount || 0;
+    const active = Math.max(0, total - idle);
+
+    dbPoolActiveGauge.set({ shard: shardName }, active);
+    dbPoolIdleGauge.set({ shard: shardName }, idle);
+    dbPoolWaitingGauge.set({ shard: shardName }, waiting);
+  });
+}
+
 export function getShardIndex(shortKey) {
   return fnv1aHash(shortKey) % NUM_SHARDS;
 }
@@ -63,3 +78,4 @@ export async function closeAllPools() {
 }
 
 export { NUM_SHARDS };
+

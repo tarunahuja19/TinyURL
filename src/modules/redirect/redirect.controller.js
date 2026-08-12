@@ -1,8 +1,25 @@
 import { getOriginalUrl } from './redirect.service.js';
 import { emitClickEvent } from '../../queue/click_producer.js';
+import { register } from '../../observability/metrics.js';
+import { collectDbPoolMetrics } from '../../db/shard_router.js';
 
 export async function redirectController(req, res) {
     const { shortkey } = req.params;
+
+    if (shortkey === 'metrics') {
+        try {
+            collectDbPoolMetrics();
+            res.type(register.contentType);
+            return res.send(await register.metrics());
+        } catch (err) {
+            return res.status(500).send(err);
+        }
+    }
+
+    if (shortkey === 'favicon.ico' || shortkey === 'health') {
+        return res.status(404).send({ error: 'Not found' });
+    }
+
     const originalUrl = await getOriginalUrl(shortkey);
 
     if (!originalUrl) {

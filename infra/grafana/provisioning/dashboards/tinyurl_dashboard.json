@@ -1,0 +1,95 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "title": "HTTP Request Rate (RPS by Route)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total[1m])) by (route, status_code)",
+          "legendFormat": "{{route}} ({{status_code}})"
+        }
+      ]
+    },
+    {
+      "title": "HTTP Request Latency (p95 & p99)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1m])) by (le))",
+          "legendFormat": "p95 Latency"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[1m])) by (le))",
+          "legendFormat": "p99 Latency"
+        }
+      ]
+    },
+    {
+      "title": "Redis Cache Hit vs Miss Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "rate(redis_cache_hits_total[1m])",
+          "legendFormat": "Cache Hits/sec"
+        },
+        {
+          "expr": "rate(redis_cache_misses_total[1m])",
+          "legendFormat": "Cache Misses/sec"
+        }
+      ]
+    },
+    {
+      "title": "Database Connection Pool Status (by Shard)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "expr": "db_pool_active_connections",
+          "legendFormat": "Active ({{shard}})"
+        },
+        {
+          "expr": "db_pool_idle_connections",
+          "legendFormat": "Idle ({{shard}})"
+        },
+        {
+          "expr": "db_pool_waiting_count",
+          "legendFormat": "Waiting ({{shard}})"
+        }
+      ]
+    },
+    {
+      "title": "Node.js Event Loop Lag & Memory Usage",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+      "targets": [
+        {
+          "expr": "tinyurl_nodejs_eventloop_lag_seconds",
+          "legendFormat": "Event Loop Lag (s)"
+        },
+        {
+          "expr": "tinyurl_process_resident_memory_bytes / 1024 / 1024",
+          "legendFormat": "RAM Usage (MB)"
+        }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["tinyurl", "telemetry"],
+  "time": { "from": "now-15m", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "TinyURL System Health & Metrics",
+  "uid": "tinyurl-health-dashboard"
+}
